@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProfitRobotStatus } from '../types';
-import { X, Cpu, CheckCircle2, ShieldCheck, Activity, RefreshCw } from 'lucide-react';
+import { X, Cpu, CheckCircle2, ShieldCheck, Activity, RefreshCw, Database } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -13,11 +13,11 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#141722] border border-[#272d3f] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl glow-purple text-gray-200">
+      <div className="bg-[#141722] border border-[#242b3d] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl glow-blue text-gray-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#272d3f] bg-[#1a1e2b]">
+        <div className="flex items-center justify-between p-4 border-b border-[#242b3d] bg-[#1a1e2b]">
           <div className="flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-purple-400" />
+            <Cpu className="w-5 h-5 text-blue-400" />
             <h3 className="font-semibold text-white text-base">Status do Profit Pro Bridge</h3>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800">
@@ -45,28 +45,43 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
           <div className="bg-[#1c202d] p-3 rounded-xl border border-[#2d3448] text-xs font-mono">
             <div className="flex items-center justify-between text-gray-400 mb-1">
               <span>TOKEN DE CUSTÓDIA DO USUÁRIO</span>
-              <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <ShieldCheck className="w-4 h-4 text-blue-400" />
             </div>
-            <div className="text-purple-300 truncate">
+            <div className="text-blue-300 truncate">
               usr_token_b3_8f9a2b...4d1e9 (HMAC Signed via Google OAuth)
             </div>
+          </div>
+
+          {/* Supabase Keep-Alive Card (Anti-Suspension) */}
+          <div className="bg-[#181c28] p-3 rounded-xl border border-[#262e42] text-xs">
+            <div className="flex items-center justify-between text-gray-300 mb-1.5 font-mono">
+              <span className="flex items-center gap-1.5">
+                <Database className="w-3.5 h-3.5 text-emerald-400" /> SUPABASE PGSQL (ANTI-SUSPENSÃO)
+              </span>
+              <span className="text-[10px] bg-emerald-950/90 text-emerald-300 border border-emerald-800/60 px-2 py-0.5 rounded-full font-bold">
+                Keep-Alive Ativo
+              </span>
+            </div>
+            <p className="text-gray-400 text-[11px] leading-relaxed">
+              Disparos programados no Cloudflare Edge (a cada 3 dias) e GitHub Actions (a cada 4 dias) impedem a pausa do banco por inatividade.
+            </p>
           </div>
 
           {/* Robots List */}
           <div>
             <div className="flex items-center justify-between text-xs text-gray-400 mb-2 font-semibold uppercase">
               <span>Robôs de Automação Ativos ({robots.length})</span>
-              <button className="flex items-center gap-1 text-purple-400 hover:text-purple-300 text-[11px]">
-                <RefreshCw className="w-3 h-3" /> Atualizar
+              <button className="flex items-center gap-1 text-amber-400 hover:text-amber-300 text-[11px]">
+                <RefreshCw className="w-3 h-3 text-amber-400" /> Atualizar
               </button>
             </div>
 
             <div className="space-y-2">
               {robots.map((robot) => (
-                <div key={robot.id} className="bg-[#1a1e2b] border border-[#272d3f] p-3 rounded-xl text-xs space-y-2">
+                <div key={robot.id} className="bg-[#1a1e2b] border border-[#242b3d] p-3 rounded-xl text-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Activity className="w-4 h-4 text-purple-400" />
+                      <Activity className="w-4 h-4 text-blue-400" />
                       <span className="font-semibold text-white">{robot.name}</span>
                     </div>
                     <span
@@ -83,7 +98,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#262c3d] text-center font-mono text-[11px]">
                     <div>
                       <span className="text-gray-400 block text-[9px]">PNL HOJE</span>
-                      <span className={robot.todayPnl >= 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+                      <span className={robot.todayPnl >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
                         {robot.todayPnl >= 0 ? `+R$ ${robot.todayPnl.toFixed(2)}` : `-R$ ${Math.abs(robot.todayPnl).toFixed(2)}`}
                       </span>
                     </div>
@@ -93,7 +108,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
                     </div>
                     <div>
                       <span className="text-gray-400 block text-[9px]">WIN RATE</span>
-                      <span className="text-purple-300">{robot.winRate}%</span>
+                      <span className="text-amber-300 font-semibold">{robot.winRate}%</span>
                     </div>
                   </div>
                 </div>
@@ -103,10 +118,10 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#272d3f] bg-[#1a1e2b] text-right">
+        <div className="p-4 border-t border-[#242b3d] bg-[#1a1e2b] text-right">
           <button
             onClick={onClose}
-            className="bg-purple-600 hover:bg-purple-500 text-white font-medium px-4 py-2 rounded-lg text-xs transition-all"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs transition-all shadow-md"
           >
             Fechar Painel
           </button>

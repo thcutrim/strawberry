@@ -34,6 +34,26 @@ export interface OrderTicketData {
   status: 'PENDING' | 'EXECUTED' | 'CANCELLED';
 }
 
+export interface PortfolioItem {
+  symbol: string;
+  assetType: 'AÇÃO' | 'CALL' | 'PUT' | 'FUTURO';
+  quantity: number;
+  avgPrice: number;
+  currentPrice: number;
+  pnl: number;
+  pnlPercent: number;
+}
+
+export interface PortfolioData {
+  broker: string;
+  accountNumber: string;
+  totalPatrimony: number;
+  cashBalance: number;
+  allocatedMargin: number;
+  todayPnl: number;
+  items: PortfolioItem[];
+}
+
 export interface Message {
   id: string;
   sender: 'user' | 'assistant';
@@ -42,6 +62,8 @@ export interface Message {
   imageUrl?: string;
   payoffWidget?: OptionStrategyData;
   orderTicketWidget?: OrderTicketData;
+  portfolioWidget?: PortfolioData;
+  jevCategory?: string;
 }
 
 export interface ProfitRobotStatus {

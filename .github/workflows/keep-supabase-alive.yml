@@ -1,0 +1,29 @@
+name: Keep Supabase Alive (Strawberry)
+
+on:
+  schedule:
+    # Executa a cada 4 dias às 06:00 UTC para prevenir suspensão por inatividade (7 dias)
+    - cron: '0 6 */4 * *'
+  workflow_dispatch: # Permite execução manual a qualquer momento via GitHub Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          echo "Disparando ping no Supabase para manter banco ativo..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "https://juksgyfgqtyignkethwn.supabase.co/rest/v1/checkout_upload_logs?select=id&limit=1" \
+            -H "apikey: sb_publishable_YEpe9Wj2pelILuS9liEwFw_802CevW3" \
+            -H "Authorization: Bearer sb_publishable_YEpe9Wj2pelILuS9liEwFw_802CevW3")
+          echo "Supabase HTTP Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Aviso: Status inesperado no Supabase: $HTTP_STATUS"
+          else
+            echo "Sucesso: Supabase permanece aquecido e ativo."
+          fi
+
+      - name: Ping Strawberry Bridge Worker Keep-Alive
+        run: |
+          echo "Disparando ping no Cloudflare Worker Strawberry Bridge..."
+          curl -s "https://strawberry-bridge.edigicert-app.workers.dev/api/keepalive" || true

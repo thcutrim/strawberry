@@ -1,8 +1,10 @@
-import { useState } from 'react';
-import type { Message, ProfitRobotStatus, OptionStrategyData, OrderTicketData } from './types';
+import { useState, useEffect, useRef } from 'react';
+import type { Message, ProfitRobotStatus, PortfolioData } from './types';
 import { OptionsPayoffChart } from './components/OptionsPayoffChart';
 import { OrderTicketWidget } from './components/OrderTicketWidget';
 import { ProfitBridgeModal } from './components/ProfitBridgeModal';
+import { PortfolioWidget } from './components/PortfolioWidget';
+import { evaluateTraderIntent } from './services/jevEngine';
 import {
   Send,
   Image as ImageIcon,
@@ -16,44 +18,80 @@ import {
   Zap,
   Sparkles,
   Layers,
-  BarChart2
+  Wallet,
+  Trash2,
+  Database
 } from 'lucide-react';
+import { keepAliveSupabase } from './services/keepalive';
+
+const API_WORKER_URL = 'https://strawberry-bridge.edigicert-app.workers.dev';
+const CHAT_STORAGE_KEY = 'strawberry_chat_messages';
+
+const INITIAL_WELCOME_MSG: Message = {
+  id: '1',
+  sender: 'assistant',
+  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  text: 'Olá! Sou o assistente Strawberry AI especializado em Opções e Derivativos. Conectado automaticamente à sua conta Genial Investimentos via login do Google. Como posso te ajudar agora?'
+};
 
 export function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      sender: 'assistant',
-      timestamp: '19:30',
-      text: 'Olá! Sou o assistente Strawberry AI especializado em Opções e Derivativos. Posso analisar suas estratégias, calcular Gregas, ler prints do Profit Pro e enviar boletas de CALL e PUT direto para sua custódia. Como posso te ajudar agora?'
+  // Rehydrate Chat Messages History from LocalStorage
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Falha ao carregar histórico do chat:', e);
+      }
     }
-  ]);
+    return [INITIAL_WELCOME_MSG];
+  });
 
   const [inputText, setInputText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [livePortfolio, setLivePortfolio] = useState<PortfolioData | null>(null);
+  const [dbStatus, setDbStatus] = useState<'connected' | 'checking'>('checking');
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Mock Profit Pro Robots
-  const [robots] = useState<ProfitRobotStatus[]>([
-    {
-      id: 'robo-win-22',
-      name: 'ROBO_WIN_22_IRONFLOW_WAVETREND',
-      asset: 'WINV26 (Mini-Índice)',
-      status: 'RUNNING',
-      todayPnl: 973.0,
-      totalTrades: 124,
-      winRate: 39.52
-    }
-  ]);
+  // Persist Messages History on state change
+  useEffect(() => {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Anti-suspensão automática do Supabase (Keep-Alive periódico no carregamento)
+  useEffect(() => {
+    keepAliveSupabase()
+      .then((res) => {
+        if (res.success) {
+          setDbStatus('connected');
+        }
+      })
+      .catch((err) => console.warn('Supabase Keep-Alive Warning:', err));
+  }, []);
+
+  // Automated Background Fetch from Genial API Worker
+  useEffect(() => {
+    fetch(`${API_WORKER_URL}/api/portfolio`)
+      .then((res) => res.json())
+      .then((data: PortfolioData) => setLivePortfolio(data))
+      .catch((err) => console.error('Auto Fetch Genial Error:', err));
+  }, []);
 
   const handleSendMessage = () => {
     if (!inputText.trim() && !selectedImage) return;
 
+    const userPrompt = inputText;
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: 'user',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: inputText,
+      text: userPrompt,
       imageUrl: selectedImage || undefined
     };
 
@@ -61,67 +99,33 @@ export function App() {
     setInputText('');
     setSelectedImage(null);
 
-    // AI Response Simulation based on prompt keywords
+    // ⚡ Execute TypeSafe JEV Engine with Automated SSO Live Broker State
+    const jevResult = evaluateTraderIntent(userPrompt, livePortfolio);
+
     setTimeout(() => {
-      const lower = userMsg.text.toLowerCase();
-
-      let assistantText = 'Analisei sua solicitação com base nos dados em tempo real do mercado de Opções e B3.';
-      let payoffData: OptionStrategyData | undefined = undefined;
-      let ticketData: OrderTicketData | undefined = undefined;
-
-      if (lower.includes('trava') || lower.includes('petr4') || lower.includes('opção')) {
-        assistantText =
-          ' Montei uma simulação de **Trava de Alta com CALL** em PETR4. As Gregas estão favoráveis com Delta positivo de +0.42 e Theta controlado.';
-        payoffData = {
-          title: 'Trava de Alta com CALL (PETR4)',
-          underlyingAsset: 'PETR4',
-          spotPrice: 38.5,
-          legs: [
-            { type: 'CALL', action: 'BUY', strike: 38.0, premium: 1.2, quantity: 100 },
-            { type: 'CALL', action: 'SELL', strike: 40.0, premium: 0.45, quantity: 100 }
-          ],
-          greeks: { delta: 0.42, gamma: 0.08, theta: -0.15, vega: 0.22 },
-          maxProfit: '75.00',
-          maxLoss: '45.00',
-          breakeven: [38.75]
-        };
-
-        ticketData = {
-          id: 'ticket-' + Date.now(),
-          symbol: 'PETR4 CALL (38.0/40.0)',
-          optionType: 'CALL',
-          action: 'BUY',
-          strike: 38.0,
-          quantity: 100,
-          estimatedCost: 75.0,
-          status: 'PENDING'
-        };
-      } else if (lower.includes('robô') || lower.includes('profit') || lower.includes('win')) {
-        assistantText =
-          ' O robô `ROBO_WIN_22_IRONFLOW_WAVETREND` está operando normalmente no Profit Pro. PNL acumulado no dia: **+R$ 973,00** em 124 operações.';
-        ticketData = {
-          id: 'ticket-robot-' + Date.now(),
-          symbol: 'WINV26 (Mini-Índice)',
-          optionType: 'ROBOT',
-          action: 'START_ROBOT',
-          robotName: 'ROBO_WIN_22_IRONFLOW_WAVETREND',
-          quantity: 1,
-          estimatedCost: 0.0,
-          status: 'PENDING'
-        };
-      }
-
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'assistant',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        text: assistantText,
-        payoffWidget: payoffData,
-        orderTicketWidget: ticketData
+        text: jevResult.suggestedResponse,
+        payoffWidget: jevResult.payoffWidget,
+        orderTicketWidget: jevResult.orderTicketWidget,
+        portfolioWidget: jevResult.portfolioWidget,
+        jevCategory: `TypeSafe JEV: ${jevResult.questions.intent} | Confiança: ${(jevResult.questions.confidenceScore * 100).toFixed(0)}% (${jevResult.executionTimeMs}ms)`
       };
 
       setMessages((prev) => [...prev, aiMsg]);
-    }, 1000);
+    }, 400);
+  };
+
+  const handleNewChat = () => {
+    const welcomeMsg: Message = {
+      id: Date.now().toString(),
+      sender: 'assistant',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: 'Nova sessão iniciada. Como posso te ajudar na sua análise de Opções e Custódia?'
+    };
+    setMessages([welcomeMsg]);
   };
 
   const handleTicketConfirm = (ticketId: string) => {
@@ -144,25 +148,41 @@ export function App() {
     );
   };
 
+  // Mock Profit Pro Robots
+  const [robots] = useState<ProfitRobotStatus[]>([
+    {
+      id: 'robo-win-22',
+      name: 'ROBO_WIN_22_IRONFLOW_WAVETREND',
+      asset: 'WINV26 (Mini-Índice)',
+      status: 'RUNNING',
+      todayPnl: 973.0,
+      totalTrades: 124,
+      winRate: 39.52
+    }
+  ]);
+
   return (
-    <div className="flex h-screen bg-[#0a0b0e] text-gray-100 overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#08090c] text-gray-100 overflow-hidden font-sans">
       {/* Sidebar Left */}
       <aside className="w-72 bg-[#10121a] border-r border-[#1f2433] flex flex-col justify-between p-4 hidden md:flex shrink-0">
         <div>
           {/* Brand */}
           <div className="flex items-center gap-2.5 px-2 py-3 mb-4 border-b border-[#1f2433]">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg glow-blue">
               🍓
             </div>
             <div>
               <h1 className="font-bold text-white text-base leading-none">Strawberry AI</h1>
-              <span className="text-[10px] text-purple-400 font-mono">Options & Derivatives</span>
+              <span className="text-[10px] text-amber-400 font-mono font-medium">Options & Derivatives</span>
             </div>
           </div>
 
           {/* New Chat Button */}
-          <button className="w-full bg-[#181b26] hover:bg-[#202535] text-purple-300 border border-[#2b3145] rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 text-xs font-semibold transition-all mb-6">
-            <Plus className="w-4 h-4 text-purple-400" />
+          <button
+            onClick={handleNewChat}
+            className="w-full bg-[#161a26] hover:bg-[#1d2334] text-blue-300 border border-[#262e45] rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 text-xs font-semibold transition-all mb-6"
+          >
+            <Plus className="w-4 h-4 text-blue-400" />
             <span>Nova Análise de Opções</span>
           </button>
 
@@ -173,6 +193,14 @@ export function App() {
             </span>
 
             <div className="space-y-1.5 text-xs">
+              <button
+                onClick={() => setInputText('Descreva minha carteira atual na Genial')}
+                className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
+              >
+                <Wallet className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="truncate">Ver Custódia Genial</span>
+              </button>
+
               <button
                 onClick={() => setInputText('Simular Trava de Alta em PETR4')}
                 className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
@@ -188,29 +216,29 @@ export function App() {
                 <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
                 <span className="truncate">Status do Robô WINV26</span>
               </button>
-
-              <button
-                onClick={() => setInputText('Calcular Gregas de BOVA11')}
-                className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
-              >
-                <BarChart2 className="w-4 h-4 text-purple-400 shrink-0" />
-                <span className="truncate">Calcular Gregas de BOVA11</span>
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Profit Pro Sync Indicator */}
+        {/* Profit Pro, JEV & Supabase Indicator */}
         <div className="bg-[#141722] border border-[#23293a] p-3 rounded-xl space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-400 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" /> Profit Pro Bridge
+              <Zap className="w-3.5 h-3.5 text-amber-400" /> TypeSafe JEV Active
             </span>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           </div>
+
+          <div className="flex items-center justify-between text-[11px] text-gray-400 font-mono">
+            <span className="flex items-center gap-1.5 text-gray-300">
+              <Database className="w-3.5 h-3.5 text-emerald-400" /> Supabase Anti-Pause
+            </span>
+            <span className="text-emerald-400 font-semibold">{dbStatus === 'connected' ? 'Ativo' : 'Conectando'}</span>
+          </div>
+
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full text-center text-purple-400 hover:text-purple-300 text-xs font-mono font-medium underline"
+            className="w-full text-center text-blue-400 hover:text-blue-300 text-xs font-mono font-medium underline"
           >
             Ver Robôs & Custódia →
           </button>
@@ -225,21 +253,35 @@ export function App() {
             <span className="text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" /> Cloudflare Access Safe
             </span>
-            <span className="text-xs text-gray-400 font-mono hidden sm:inline">
-              User Token Active
+
+            <span className="text-xs bg-blue-950/80 text-blue-300 border border-blue-800/60 px-2.5 py-1 rounded-full font-mono hidden sm:inline">
+              ⚡ Genial API Auto-Connected (SSO Login)
+            </span>
+
+            <span className="text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-2.5 py-1 rounded-full font-mono hidden md:inline-flex items-center gap-1.5" title="Keep-alive ativo no Supabase PostgreSQL">
+              <Database className="w-3.5 h-3.5 text-emerald-400" /> Supabase Keep-Alive
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-[#1a1e2b] hover:bg-[#23283a] text-purple-300 border border-purple-800/40 text-xs font-mono px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+              onClick={handleNewChat}
+              title="Limpar histórico e iniciar nova conversa"
+              className="bg-[#1a1e2b] hover:bg-[#23283a] text-gray-300 border border-[#2b3145] text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
             >
-              <Cpu className="w-3.5 h-3.5 text-purple-400" />
+              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">Limpar Histórico</span>
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-[#1a1e2b] hover:bg-[#23283a] text-blue-300 border border-blue-800/40 text-xs font-mono px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all hidden sm:flex"
+            >
+              <Cpu className="w-3.5 h-3.5 text-blue-400" />
               <span>Profit Pro Bridge</span>
             </button>
 
-            <div className="w-8 h-8 rounded-full bg-purple-900/60 border border-purple-600/50 flex items-center justify-center text-xs font-bold text-purple-200">
+            <div className="w-8 h-8 rounded-full bg-blue-900/60 border border-blue-600/50 flex items-center justify-center text-xs font-bold text-blue-200">
               <User className="w-4 h-4" />
             </div>
           </div>
@@ -256,19 +298,19 @@ export function App() {
               <div
                 className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 shadow-md ${
                   msg.sender === 'user'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gradient-to-tr from-indigo-600 to-purple-600 text-white'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gradient-to-tr from-blue-700 to-indigo-600 text-white'
                 }`}
               >
                 {msg.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
 
               {/* Message Content */}
-              <div className={`max-w-[85%] space-y-2 ${msg.sender === 'user' ? 'text-right' : ''}`}>
+              <div className={`max-w-[88%] space-y-2 ${msg.sender === 'user' ? 'text-right' : ''}`}>
                 <div
                   className={`p-4 rounded-2xl text-sm leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-purple-900/40 border border-purple-700/50 text-purple-100 rounded-tr-none'
+                      ? 'bg-blue-950/60 border border-blue-800/60 text-blue-100 rounded-tr-none'
                       : 'bg-[#151824] border border-[#24293a] text-gray-200 rounded-tl-none shadow-xl'
                   }`}
                 >
@@ -282,6 +324,9 @@ export function App() {
                   )}
                 </div>
 
+                {/* Embedded Portfolio Custody Widget */}
+                {msg.portfolioWidget && <PortfolioWidget data={msg.portfolioWidget} />}
+
                 {/* Embedded Payoff Chart Widget */}
                 {msg.payoffWidget && <OptionsPayoffChart data={msg.payoffWidget} />}
 
@@ -290,10 +335,18 @@ export function App() {
                   <OrderTicketWidget data={msg.orderTicketWidget} onConfirm={handleTicketConfirm} />
                 )}
 
-                <span className="text-[10px] text-gray-500 font-mono px-1 block">{msg.timestamp}</span>
+                <div className="flex items-center justify-between text-[10px] text-gray-500 font-mono px-1">
+                  <span>{msg.timestamp}</span>
+                  {msg.jevCategory && (
+                    <span className="text-amber-400 bg-amber-950/40 border border-amber-800/40 px-1.5 py-0.5 rounded">
+                      ⚡ {msg.jevCategory}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))}
+          <div ref={chatEndRef} />
         </div>
 
         {/* Input Bar */}
@@ -302,22 +355,29 @@ export function App() {
             {/* Quick Action Chips */}
             <div className="flex gap-2 overflow-x-auto pb-1 text-xs">
               <button
-                onClick={() => setInputText('Simular Trava de Baixa com PUT')}
-                className="bg-[#181b28] hover:bg-[#202538] text-purple-300 border border-purple-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                onClick={() => setInputText('Descreva minha carteira na Genial')}
+                className="bg-[#161a26] hover:bg-[#1f2538] text-blue-300 border border-blue-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
-                <Sparkles className="w-3 h-3 text-purple-400" /> Trava com PUT
+                <Wallet className="w-3.5 h-3.5 text-blue-400" /> Ver Custódia Genial
+              </button>
+
+              <button
+                onClick={() => setInputText('Simular Trava de Baixa com PUT')}
+                className="bg-[#161a26] hover:bg-[#1f2538] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+              >
+                <Sparkles className="w-3 h-3 text-amber-400" /> Trava com PUT
               </button>
 
               <button
                 onClick={() => setInputText('Comprar Straddle em BOVA11')}
-                className="bg-[#181b28] hover:bg-[#202538] text-emerald-300 border border-emerald-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#161a26] hover:bg-[#1f2538] text-emerald-300 border border-emerald-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Layers className="w-3 h-3 text-emerald-400" /> Straddle Volatilidade
               </button>
 
               <button
                 onClick={() => setInputText('Pausar robôs no Profit Pro')}
-                className="bg-[#181b28] hover:bg-[#202538] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#161a26] hover:bg-[#1f2538] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Sliders className="w-3 h-3 text-amber-400" /> Pausar Robôs
               </button>
@@ -325,8 +385,8 @@ export function App() {
 
             {/* Selected Image Preview */}
             {selectedImage && (
-              <div className="flex items-center gap-2 bg-[#1a1e2b] p-2 rounded-lg border border-[#2b3145] text-xs text-purple-300">
-                <ImageIcon className="w-4 h-4 text-purple-400" />
+              <div className="flex items-center gap-2 bg-[#1a1e2b] p-2 rounded-lg border border-[#2b3145] text-xs text-blue-300">
+                <ImageIcon className="w-4 h-4 text-blue-400" />
                 <span>Print anexado para análise visual de IA</span>
                 <button
                   onClick={() => setSelectedImage(null)}
@@ -344,15 +404,15 @@ export function App() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Pergunte sobre opções, peça uma trava ou acione uma boleta..."
-                className="w-full bg-[#151824] border border-[#262c3e] focus:border-purple-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all shadow-inner"
+                placeholder="Pergunte sobre sua carteira Genial, opções ou robôs..."
+                className="w-full bg-[#151824] border border-[#262c3e] focus:border-blue-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner"
               />
 
               <div className="absolute right-2 flex items-center gap-1">
                 <button
                   onClick={handleSimulatePrintUpload}
                   title="Anexar print do Profit Pro ou TradingView"
-                  className="p-2 text-gray-400 hover:text-purple-400 rounded-xl hover:bg-[#1f2435] transition-all"
+                  className="p-2 text-gray-400 hover:text-blue-400 rounded-xl hover:bg-[#1f2435] transition-all"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </button>
@@ -360,9 +420,9 @@ export function App() {
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputText.trim() && !selectedImage}
-                  className="p-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white rounded-xl transition-all shadow-md"
+                  className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-xl transition-all shadow-md"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4 text-amber-300" />
                 </button>
               </div>
             </div>

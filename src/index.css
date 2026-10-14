@@ -1,26 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #0a0b0e;
-  --bg-secondary: #12141a;
-  --bg-card: #181b22;
-  --bg-card-hover: #20242f;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(139, 92, 246, 0.3);
-  
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-
-  --accent-purple: #8b5cf6;
-  --accent-purple-light: #a78bfa;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
-  --accent-blue: #3b82f6;
-  --accent-amber: #f59e0b;
-
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --bg-primary: #08090c;
+  --bg-secondary: #10121a;
+  --bg-card: #151824;
+  --border-color: #232838;
+  --accent-royal-blue: #2563eb;
+  --accent-golden: #fbbf24;
 }
 
 * {
@@ -31,11 +17,9 @@
 
 body {
   background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  color: #f3f4f6;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 /* Custom Scrollbar */
@@ -44,28 +28,41 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: #08090c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262936;
-  border-radius: 3px;
+  background: #1f2434;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b3f52;
+  background: #2563eb;
 }
 
-/* Utilities */
+/* Glassmorphism & Glowing Utilities */
 .glass-panel {
-  background: rgba(18, 20, 26, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+  background: rgba(18, 20, 28, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.glow-purple {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+.glow-blue {
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.2);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
 }
 
 .glow-green {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.18);
+}
+
+/* Button & Interactive Animations */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.98);
 }

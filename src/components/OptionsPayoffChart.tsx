@@ -41,18 +41,18 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
   const chartPoints = generateCurveData();
 
   return (
-    <div className="bg-[#141720] border border-[#262b3a] rounded-xl p-4 my-3 text-gray-200 glow-purple">
+    <div className="bg-[#141720] border border-[#232a3d] rounded-xl p-4 my-3 text-gray-200 glow-blue">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#262b3a]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#232a3d]">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-purple-400" />
+          <TrendingUp className="w-5 h-5 text-blue-400" />
           <h4 className="font-semibold text-sm text-white">{data.title}</h4>
-          <span className="text-xs bg-purple-950/80 text-purple-300 border border-purple-800/60 px-2 py-0.5 rounded-full font-mono">
+          <span className="text-xs bg-blue-950/80 text-blue-300 border border-blue-800/60 px-2 py-0.5 rounded-full font-mono">
             {data.underlyingAsset} @ R$ {data.spotPrice.toFixed(2)}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-emerald-400 font-mono">
-          <Activity className="w-4 h-4" />
+        <div className="flex items-center gap-1 text-xs text-amber-400 font-mono font-medium">
+          <Activity className="w-4 h-4 text-amber-400" />
           <span>Vol. Implícita: 28.4%</span>
         </div>
       </div>
@@ -75,27 +75,27 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
               labelFormatter={(label) => `Preço Ativo: R$ ${label}`}
             />
             <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="3 3" />
-            <ReferenceLine x={data.spotPrice} stroke="#8b5cf6" label={{ value: 'Spot', fill: '#a78bfa', fontSize: 10 }} />
-            <Area type="monotone" dataKey="pnl" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#pnlGradient)" />
+            <ReferenceLine x={data.spotPrice} stroke="#3b82f6" label={{ value: 'Spot', fill: '#60a5fa', fontSize: 10 }} />
+            <Area type="monotone" dataKey="pnl" stroke="#2563eb" strokeWidth={2} fillOpacity={1} fill="url(#pnlGradient)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
       {/* Greeks Grid */}
-      <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#262b3a] text-center text-xs font-mono">
-        <div className="bg-[#1c202c] p-2 rounded-lg">
+      <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#232a3d] text-center text-xs font-mono">
+        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
           <span className="text-gray-400 block text-[10px]">DELTA (Δ)</span>
-          <span className="font-semibold text-purple-300">{data.greeks.delta > 0 ? `+${data.greeks.delta}` : data.greeks.delta}</span>
+          <span className="font-semibold text-blue-400">{data.greeks.delta > 0 ? `+${data.greeks.delta}` : data.greeks.delta}</span>
         </div>
-        <div className="bg-[#1c202c] p-2 rounded-lg">
+        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
           <span className="text-gray-400 block text-[10px]">GAMMA (Γ)</span>
-          <span className="font-semibold text-blue-300">+{data.greeks.gamma}</span>
+          <span className="font-semibold text-amber-400">+{data.greeks.gamma}</span>
         </div>
-        <div className="bg-[#1c202c] p-2 rounded-lg">
+        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
           <span className="text-gray-400 block text-[10px]">THETA (Θ)</span>
-          <span className="font-semibold text-red-400">{data.greeks.theta} R$/dia</span>
+          <span className="font-semibold text-rose-400">{data.greeks.theta} R$/dia</span>
         </div>
-        <div className="bg-[#1c202c] p-2 rounded-lg">
+        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
           <span className="text-gray-400 block text-[10px]">VEGA (ν)</span>
           <span className="font-semibold text-emerald-400">+{data.greeks.vega}</span>
         </div>
@@ -104,8 +104,8 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
       {/* Risk Summary */}
       <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
         <div className="flex items-center gap-1.5 text-amber-400">
-          <ShieldAlert className="w-4 h-4" />
-          <span>Lucro Máx: <strong className="text-emerald-400">R$ {data.maxProfit}</strong> | Perda Máx: <strong className="text-red-400">R$ {data.maxLoss}</strong></span>
+          <ShieldAlert className="w-4 h-4 text-amber-400" />
+          <span>Lucro Máx: <strong className="text-emerald-400">R$ {data.maxProfit}</strong> | Perda Máx: <strong className="text-rose-400">R$ {data.maxLoss}</strong></span>
         </div>
         <span>Breakeven: <strong className="text-white">R$ {data.breakeven.join(' / R$ ')}</strong></span>
       </div>
