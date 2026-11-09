@@ -15,6 +15,7 @@ export interface JEVResult {
   jevModel: 'TypeSafe Jev System-1';
   questions: TypeSafeJEVQuestions;
   executionTimeMs: number;
+  requiresLLM?: boolean;
   portfolioWidget?: PortfolioData;
   payoffWidget?: OptionStrategyData;
   orderTicketWidget?: OrderTicketData;
@@ -153,8 +154,9 @@ export function evaluateTraderIntent(
       confidenceScore: 0.88,
       isExecutionAuthorized: true
     },
+    requiresLLM: true,
     executionTimeMs: parseFloat((endTime - startTime).toFixed(2)),
     suggestedResponse:
-      '⚡ [TypeSafe JEV Engine] Consulta avaliada com sucesso via conexão SSO automatizada da sua conta Genial.'
+      '⚡ [TypeSafe JEV Engine] Analisando consulta no mercado financeiro...'
   };
 }

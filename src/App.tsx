@@ -4,6 +4,7 @@ import { OptionsPayoffChart } from './components/OptionsPayoffChart';
 import { OrderTicketWidget } from './components/OrderTicketWidget';
 import { ProfitBridgeModal } from './components/ProfitBridgeModal';
 import { PortfolioWidget } from './components/PortfolioWidget';
+import { MarkdownRenderer } from './components/MarkdownRenderer';
 import { evaluateTraderIntent } from './services/jevEngine';
 import {
   Send,
@@ -20,7 +21,8 @@ import {
   Layers,
   Wallet,
   Trash2,
-  Database
+  Database,
+  Loader2
 } from 'lucide-react';
 import { keepAliveSupabase } from './services/keepalive';
 
@@ -56,6 +58,7 @@ export function App() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [livePortfolio, setLivePortfolio] = useState<PortfolioData | null>(null);
   const [dbStatus, setDbStatus] = useState<'connected' | 'checking'>('checking');
+  const [isGenerating, setIsGenerating] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   // Persist Messages History on state change
@@ -83,7 +86,7 @@ export function App() {
       .catch((err) => console.error('Auto Fetch Genial Error:', err));
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim() && !selectedImage) return;
 
     const userPrompt = inputText;
@@ -98,24 +101,59 @@ export function App() {
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
     setSelectedImage(null);
+    setIsGenerating(true);
 
-    // ⚡ Execute TypeSafe JEV Engine with Automated SSO Live Broker State
+    // ⚡ Execute TypeSafe JEV Engine with Automated SSO Live Broker State (System-1 Decision)
     const jevResult = evaluateTraderIntent(userPrompt, livePortfolio);
 
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: 'assistant',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        text: jevResult.suggestedResponse,
-        payoffWidget: jevResult.payoffWidget,
-        orderTicketWidget: jevResult.orderTicketWidget,
-        portfolioWidget: jevResult.portfolioWidget,
-        jevCategory: `TypeSafe JEV: ${jevResult.questions.intent} | Confiança: ${(jevResult.questions.confidenceScore * 100).toFixed(0)}% (${jevResult.executionTimeMs}ms)`
-      };
+    let finalResponseText = jevResult.suggestedResponse;
+    let modelSource = 'TypeSafe Jev System-1';
 
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 400);
+    // Se requer modelo generativo (perguntas sobre ações, ativos B3, conceitos financeiros):
+    if (jevResult.requiresLLM) {
+      try {
+        const response = await fetch(`${API_WORKER_URL}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: userPrompt,
+            history: messages.slice(-6).map((m) => ({
+              role: m.sender,
+              text: m.text
+            }))
+          })
+        });
+
+        if (response.ok) {
+          const chatData = await response.json();
+          if (chatData.response) {
+            finalResponseText = chatData.response;
+            modelSource = chatData.model || 'DeepSeek-V3';
+          }
+        } else {
+          finalResponseText =
+            '⚠️ Instabilidade momentânea no processamento do modelo de inteligência artificial. Por favor, tente enviar sua pergunta novamente.';
+        }
+      } catch (err) {
+        console.error('Erro ao chamar endpoint /api/chat:', err);
+        finalResponseText =
+          '⚠️ Erro de conexão com o Strawberry AI Bridge. Por favor, verifique a conexão e tente novamente.';
+      }
+    }
+
+    const aiMsg: Message = {
+      id: (Date.now() + 1).toString(),
+      sender: 'assistant',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: finalResponseText,
+      payoffWidget: jevResult.payoffWidget,
+      orderTicketWidget: jevResult.orderTicketWidget,
+      portfolioWidget: jevResult.portfolioWidget,
+      jevCategory: `TypeSafe JEV: ${jevResult.questions.intent} | ${modelSource} (${jevResult.executionTimeMs}ms)`
+    };
+
+    setMessages((prev) => [...prev, aiMsg]);
+    setIsGenerating(false);
   };
 
   const handleNewChat = () => {
@@ -314,7 +352,11 @@ export function App() {
                       : 'bg-[#151824] border border-[#24293a] text-gray-200 rounded-tl-none shadow-xl'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                  {msg.sender === 'user' ? (
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  ) : (
+                    <MarkdownRenderer content={msg.text} />
+                  )}
 
                   {/* Attached Image */}
                   {msg.imageUrl && (
@@ -346,6 +388,20 @@ export function App() {
               </div>
             </div>
           ))}
+
+          {/* Indicador de Geração da IA */}
+          {isGenerating && (
+            <div className="flex gap-3 items-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl rounded-tl-none bg-[#141724] border border-[#23293c] text-xs font-mono text-blue-300 shadow-lg animate-pulse">
+                <Loader2 className="w-4 h-4 text-amber-400 animate-spin shrink-0" />
+                <span>Strawberry AI analisando mercado e processando resposta...</span>
+              </div>
+            </div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
 
@@ -402,24 +458,26 @@ export function App() {
               <input
                 type="text"
                 value={inputText}
+                disabled={isGenerating}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Pergunte sobre sua carteira Genial, opções ou robôs..."
-                className="w-full bg-[#151824] border border-[#262c3e] focus:border-blue-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner"
+                onKeyDown={(e) => e.key === 'Enter' && !isGenerating && handleSendMessage()}
+                placeholder={isGenerating ? "Strawberry AI está gerando resposta..." : "Pergunte sobre ações, B3, opções, carteira Genial ou robôs..."}
+                className="w-full bg-[#151824] border border-[#262c3e] focus:border-blue-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner disabled:opacity-60"
               />
 
               <div className="absolute right-2 flex items-center gap-1">
                 <button
                   onClick={handleSimulatePrintUpload}
+                  disabled={isGenerating}
                   title="Anexar print do Profit Pro ou TradingView"
-                  className="p-2 text-gray-400 hover:text-blue-400 rounded-xl hover:bg-[#1f2435] transition-all"
+                  className="p-2 text-gray-400 hover:text-blue-400 rounded-xl hover:bg-[#1f2435] transition-all disabled:opacity-40"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </button>
 
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputText.trim() && !selectedImage}
+                  disabled={isGenerating || (!inputText.trim() && !selectedImage)}
                   className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-xl transition-all shadow-md"
                 >
                   <Send className="w-4 h-4 text-amber-300" />
