@@ -194,3 +194,4 @@ export const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
 
   return <div className="markdown-body space-y-1">{elements}</div>;
 };
+
