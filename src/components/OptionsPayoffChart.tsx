@@ -41,9 +41,9 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
   const chartPoints = generateCurveData();
 
   return (
-    <div className="bg-[#141720] border border-[#232a3d] rounded-xl p-4 my-3 text-gray-200 glow-blue">
+    <div className="bg-[#1a2a46] border border-[#23385d] rounded-xl p-4 my-3 text-gray-200 glow-blue">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#232a3d]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#23385d]">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-blue-400" />
           <h4 className="font-semibold text-sm text-white">{data.title}</h4>
@@ -70,7 +70,7 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
             <XAxis dataKey="price" stroke="#6b7280" fontSize={11} tickFormatter={(val) => `R$${val}`} />
             <YAxis stroke="#6b7280" fontSize={11} tickFormatter={(val) => `R$${val}`} />
             <Tooltip
-              contentStyle={{ background: '#1c202d', borderColor: '#374151', borderRadius: '8px', fontSize: '12px' }}
+              contentStyle={{ background: '#1f3151', borderColor: '#374151', borderRadius: '8px', fontSize: '12px' }}
               formatter={(value: any) => [`R$ ${value}`, 'Lucro/Prejuízo']}
               labelFormatter={(label) => `Preço Ativo: R$ ${label}`}
             />
@@ -82,20 +82,20 @@ export const OptionsPayoffChart: React.FC<Props> = ({ data }) => {
       </div>
 
       {/* Greeks Grid */}
-      <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#232a3d] text-center text-xs font-mono">
-        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
+      <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#23385d] text-center text-xs font-mono">
+        <div className="bg-[#1f3151] p-2 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">DELTA (Δ)</span>
           <span className="font-semibold text-blue-400">{data.greeks.delta > 0 ? `+${data.greeks.delta}` : data.greeks.delta}</span>
         </div>
-        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">GAMMA (Γ)</span>
           <span className="font-semibold text-amber-400">+{data.greeks.gamma}</span>
         </div>
-        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">THETA (Θ)</span>
           <span className="font-semibold text-rose-400">{data.greeks.theta} R$/dia</span>
         </div>
-        <div className="bg-[#1b202e] p-2 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">VEGA (ν)</span>
           <span className="font-semibold text-emerald-400">+{data.greeks.vega}</span>
         </div>

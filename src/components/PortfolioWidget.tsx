@@ -8,9 +8,9 @@ interface Props {
 
 export const PortfolioWidget: React.FC<Props> = ({ data }) => {
   return (
-    <div className="bg-[#141724] border border-blue-900/40 rounded-xl p-4 my-3 text-gray-200 glow-blue">
+    <div className="bg-[#1b2c48] border border-blue-900/40 rounded-xl p-4 my-3 text-gray-200 glow-blue">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#232a3d]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#23385d]">
         <div className="flex items-center gap-2">
           <Wallet className="w-5 h-5 text-blue-400" />
           <div>
@@ -26,19 +26,19 @@ export const PortfolioWidget: React.FC<Props> = ({ data }) => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-3 text-xs font-mono">
-        <div className="bg-[#1b202e] p-2.5 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2.5 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">PATRIMÔNIO TOTAL</span>
           <span className="font-bold text-white text-sm">R$ {data.totalPatrimony.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
         </div>
-        <div className="bg-[#1b202e] p-2.5 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2.5 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">SALDO EM CONTA</span>
           <span className="font-bold text-emerald-400 text-sm">R$ {data.cashBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
         </div>
-        <div className="bg-[#1b202e] p-2.5 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2.5 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">GARANTIA ALOCADA</span>
           <span className="font-bold text-amber-300 text-sm">R$ {data.allocatedMargin.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
         </div>
-        <div className="bg-[#1b202e] p-2.5 rounded-lg border border-[#273044]">
+        <div className="bg-[#1f3151] p-2.5 rounded-lg border border-[#253c62]">
           <span className="text-gray-400 block text-[10px]">RESULTADO HOJE</span>
           <span className={`font-bold text-sm flex items-center gap-0.5 ${data.todayPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             {data.todayPnl >= 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
@@ -61,7 +61,7 @@ export const PortfolioWidget: React.FC<Props> = ({ data }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono border-collapse">
             <thead>
-              <tr className="bg-[#1a1e2c] text-gray-400 border-b border-[#282f42]">
+              <tr className="bg-[#1e304f] text-gray-400 border-b border-[#253b62]">
                 <th className="p-2">Ativo</th>
                 <th className="p-2">Tipo</th>
                 <th className="p-2 text-right">Qtd</th>
@@ -72,7 +72,7 @@ export const PortfolioWidget: React.FC<Props> = ({ data }) => {
             </thead>
             <tbody>
               {data.items.map((item, idx) => (
-                <tr key={idx} className="border-b border-[#232839] hover:bg-[#1f2435] transition-all">
+                <tr key={idx} className="border-b border-[#22375b] hover:bg-[#213456] transition-all">
                   <td className="p-2 font-bold text-white">{item.symbol}</td>
                   <td className="p-2">
                     <span className="bg-blue-950 text-blue-300 border border-blue-800/60 text-[10px] px-1.5 py-0.5 rounded">

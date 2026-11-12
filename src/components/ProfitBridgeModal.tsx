@@ -13,9 +13,9 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#141722] border border-[#242b3d] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl glow-blue text-gray-200">
+      <div className="bg-[#1b2b47] border border-[#23395d] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl glow-blue text-gray-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#242b3d] bg-[#1a1e2b]">
+        <div className="flex items-center justify-between p-4 border-b border-[#23395d] bg-[#1e304f]">
           <div className="flex items-center gap-2">
             <Cpu className="w-5 h-5 text-blue-400" />
             <h3 className="font-semibold text-white text-base">Status do Profit Pro Bridge</h3>
@@ -42,7 +42,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
           </div>
 
           {/* User Auth Token Info */}
-          <div className="bg-[#1c202d] p-3 rounded-xl border border-[#2d3448] text-xs font-mono">
+          <div className="bg-[#1f3151] p-3 rounded-xl border border-[#273f68] text-xs font-mono">
             <div className="flex items-center justify-between text-gray-400 mb-1">
               <span>TOKEN DE CUSTÓDIA DO USUÁRIO</span>
               <ShieldCheck className="w-4 h-4 text-blue-400" />
@@ -53,7 +53,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
           </div>
 
           {/* Supabase Keep-Alive Card (Anti-Suspension) */}
-          <div className="bg-[#181c28] p-3 rounded-xl border border-[#262e42] text-xs">
+          <div className="bg-[#1d2e4c] p-3 rounded-xl border border-[#253b61] text-xs">
             <div className="flex items-center justify-between text-gray-300 mb-1.5 font-mono">
               <span className="flex items-center gap-1.5">
                 <Database className="w-3.5 h-3.5 text-emerald-400" /> SUPABASE PGSQL (ANTI-SUSPENSÃO)
@@ -78,7 +78,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
 
             <div className="space-y-2">
               {robots.map((robot) => (
-                <div key={robot.id} className="bg-[#1a1e2b] border border-[#242b3d] p-3 rounded-xl text-xs space-y-2">
+                <div key={robot.id} className="bg-[#1e304f] border border-[#23395d] p-3 rounded-xl text-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Activity className="w-4 h-4 text-blue-400" />
@@ -95,7 +95,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#262c3d] text-center font-mono text-[11px]">
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#24395e] text-center font-mono text-[11px]">
                     <div>
                       <span className="text-gray-400 block text-[9px]">PNL HOJE</span>
                       <span className={robot.todayPnl >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
@@ -118,7 +118,7 @@ export const ProfitBridgeModal: React.FC<Props> = ({ isOpen, onClose, robots }) 
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#242b3d] bg-[#1a1e2b] text-right">
+        <div className="p-4 border-t border-[#23395d] bg-[#1e304f] text-right">
           <button
             onClick={onClose}
             className="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs transition-all shadow-md"

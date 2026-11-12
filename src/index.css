@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #08090c;
-  --bg-secondary: #10121a;
-  --bg-card: #151824;
-  --border-color: #232838;
+  --bg-primary: #142035;
+  --bg-secondary: #182740;
+  --bg-card: #1b2c48;
+  --border-color: #22375a;
   --accent-royal-blue: #2563eb;
   --accent-golden: #fbbf24;
 }
@@ -28,10 +28,10 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090c;
+  background: #142035;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2434;
+  background: #213456;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

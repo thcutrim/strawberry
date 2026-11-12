@@ -83,9 +83,9 @@ export const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
         );
 
         elements.push(
-          <div key={`table-${i}`} className="my-3 overflow-x-auto rounded-lg border border-[#272e42] shadow-sm">
-            <table className="min-w-full divide-y divide-[#272e42] text-xs">
-              <thead className="bg-[#171b28]">
+          <div key={`table-${i}`} className="my-3 overflow-x-auto rounded-lg border border-[#253b61] shadow-sm">
+            <table className="min-w-full divide-y divide-[#253b61] text-xs">
+              <thead className="bg-[#1d2e4b]">
                 <tr>
                   {headerRow.map((h, colIdx) => (
                     <th
@@ -97,9 +97,9 @@ export const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#202636] bg-[#111420]">
+              <tbody className="divide-y divide-[#213557] bg-[#1a2944]">
                 {bodyRows.map((row, rowIdx) => (
-                  <tr key={rowIdx} className="hover:bg-[#1a1f30] transition-colors">
+                  <tr key={rowIdx} className="hover:bg-[#1f3151] transition-colors">
                     {row.map((cell, cellIdx) => (
                       <td key={cellIdx} className="px-3 py-2 text-gray-200">
                         {renderInlineFormatting(cell)}
@@ -117,7 +117,7 @@ export const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
 
     // 2. Linha divisória
     if (trimmed === '---' || trimmed === '***') {
-      elements.push(<hr key={`hr-${i}`} className="my-4 border-[#242b3d]" />);
+      elements.push(<hr key={`hr-${i}`} className="my-4 border-[#23395d]" />);
       i++;
       continue;
     }
@@ -134,7 +134,7 @@ export const MarkdownRenderer: React.FC<MarkdownProps> = ({ content }) => {
     }
     if (trimmed.startsWith('## ')) {
       elements.push(
-        <h3 key={`h2-${i}`} className="text-base font-bold text-white mt-4 mb-2 pb-1 border-b border-[#23293a]">
+        <h3 key={`h2-${i}`} className="text-base font-bold text-white mt-4 mb-2 pb-1 border-b border-[#23375b]">
           {renderInlineFormatting(trimmed.slice(3))}
         </h3>
       );

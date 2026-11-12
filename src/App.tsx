@@ -13,9 +13,7 @@ import {
   Bot,
   User,
   Plus,
-  TrendingUp,
   Sliders,
-  ShieldCheck,
   Zap,
   Sparkles,
   Layers,
@@ -25,6 +23,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { keepAliveSupabase } from './services/keepalive';
+import { APP_VERSION } from './config';
 
 const API_WORKER_URL = 'https://strawberry-bridge.edigicert-app.workers.dev';
 const CHAT_STORAGE_KEY = 'strawberry_chat_messages';
@@ -200,12 +199,12 @@ export function App() {
   ]);
 
   return (
-    <div className="flex h-screen bg-[#08090c] text-gray-100 overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#142035] text-gray-100 overflow-hidden font-sans">
       {/* Sidebar Left */}
-      <aside className="w-72 bg-[#10121a] border-r border-[#1f2433] flex flex-col justify-between p-4 hidden md:flex shrink-0">
+      <aside className="w-72 bg-[#182740] border-r border-[#203455] flex flex-col justify-between p-4 hidden md:flex shrink-0">
         <div>
           {/* Brand */}
-          <div className="flex items-center gap-2.5 px-2 py-3 mb-4 border-b border-[#1f2433]">
+          <div className="flex items-center gap-2.5 px-2 py-3 mb-4 border-b border-[#203455]">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg glow-blue">
               🍓
             </div>
@@ -218,48 +217,16 @@ export function App() {
           {/* New Chat Button */}
           <button
             onClick={handleNewChat}
-            className="w-full bg-[#161a26] hover:bg-[#1d2334] text-blue-300 border border-[#262e45] rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 text-xs font-semibold transition-all mb-6"
+            className="w-full bg-[#1c2d4a] hover:bg-[#203355] text-blue-300 border border-[#253c62] rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 text-xs font-semibold transition-all mb-6"
           >
             <Plus className="w-4 h-4 text-blue-400" />
             <span>Nova Análise de Opções</span>
           </button>
 
-          {/* Quick Prompts */}
-          <div className="space-y-4">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-2">
-              Ações Rápidas DE TRADING
-            </span>
-
-            <div className="space-y-1.5 text-xs">
-              <button
-                onClick={() => setInputText('Descreva minha carteira atual na Genial')}
-                className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
-              >
-                <Wallet className="w-4 h-4 text-blue-400 shrink-0" />
-                <span className="truncate">Ver Custódia Genial</span>
-              </button>
-
-              <button
-                onClick={() => setInputText('Simular Trava de Alta em PETR4')}
-                className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
-              >
-                <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="truncate">Trava de Alta em PETR4</span>
-              </button>
-
-              <button
-                onClick={() => setInputText('Analisar robô no Profit Pro')}
-                className="w-full text-left p-2.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222736] text-gray-300 flex items-center gap-2 transition-all"
-              >
-                <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
-                <span className="truncate">Status do Robô WINV26</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Profit Pro, JEV & Supabase Indicator */}
-        <div className="bg-[#141722] border border-[#23293a] p-3 rounded-xl space-y-2">
+        <div className="bg-[#1b2b47] border border-[#23375b] p-3 rounded-xl space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-400 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-amber-400" /> TypeSafe JEV Active
@@ -284,20 +251,24 @@ export function App() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col justify-between bg-[#0e0f14] relative">
+      <main className="flex-1 flex flex-col justify-between bg-[#17253c] relative">
         {/* Top Header */}
-        <header className="h-14 border-b border-[#1f2433] bg-[#10121a]/80 backdrop-blur-md px-4 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <span className="text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" /> Cloudflare Access Safe
-            </span>
-
-            <span className="text-xs bg-blue-950/80 text-blue-300 border border-blue-800/60 px-2.5 py-1 rounded-full font-mono hidden sm:inline">
-              ⚡ Genial API Auto-Connected (SSO Login)
-            </span>
-
-            <span className="text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-2.5 py-1 rounded-full font-mono hidden md:inline-flex items-center gap-1.5" title="Keep-alive ativo no Supabase PostgreSQL">
-              <Database className="w-3.5 h-3.5 text-emerald-400" /> Supabase Keep-Alive
+        <header className="h-14 border-b border-[#203455] bg-[#182740]/80 backdrop-blur-md px-4 flex items-center justify-between z-10">
+          <div className="flex items-center gap-2.5">
+            <span className="text-base leading-none">🍓</span>
+            <div className="leading-none">
+              <span className="text-sm font-bold text-white">Strawberry AI</span>
+              <span className="block text-[9px] text-gray-500 font-mono mt-0.5">Options & Derivatives</span>
+            </div>
+            <span
+              className={`ml-1 text-[10px] font-mono px-2 py-1 rounded-full border flex items-center gap-1.5 ${
+                dbStatus === 'connected'
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50'
+                  : 'bg-amber-950/60 text-amber-300 border-amber-800/50'
+              }`}
+              title="Keep-alive ativo no Supabase PostgreSQL"
+            >
+              <Database className="w-3 h-3" /> {dbStatus === 'connected' ? 'DB Ativo' : 'DB...'}
             </span>
           </div>
 
@@ -305,7 +276,7 @@ export function App() {
             <button
               onClick={handleNewChat}
               title="Limpar histórico e iniciar nova conversa"
-              className="bg-[#1a1e2b] hover:bg-[#23283a] text-gray-300 border border-[#2b3145] text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+              className="bg-[#1e304f] hover:bg-[#23375b] text-gray-300 border border-[#263d65] text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
             >
               <Trash2 className="w-3.5 h-3.5 text-rose-400" />
               <span className="hidden sm:inline">Limpar Histórico</span>
@@ -313,7 +284,7 @@ export function App() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#1a1e2b] hover:bg-[#23283a] text-blue-300 border border-blue-800/40 text-xs font-mono px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all hidden sm:flex"
+              className="bg-[#1e304f] hover:bg-[#23375b] text-blue-300 border border-blue-800/40 text-xs font-mono px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all hidden sm:flex"
             >
               <Cpu className="w-3.5 h-3.5 text-blue-400" />
               <span>Profit Pro Bridge</span>
@@ -349,7 +320,7 @@ export function App() {
                   className={`p-4 rounded-2xl text-sm leading-relaxed ${
                     msg.sender === 'user'
                       ? 'bg-blue-950/60 border border-blue-800/60 text-blue-100 rounded-tr-none'
-                      : 'bg-[#151824] border border-[#24293a] text-gray-200 rounded-tl-none shadow-xl'
+                      : 'bg-[#1b2c48] border border-[#23385c] text-gray-200 rounded-tl-none shadow-xl'
                   }`}
                 >
                   {msg.sender === 'user' ? (
@@ -360,7 +331,7 @@ export function App() {
 
                   {/* Attached Image */}
                   {msg.imageUrl && (
-                    <div className="mt-3 rounded-xl overflow-hidden border border-[#2b3145]">
+                    <div className="mt-3 rounded-xl overflow-hidden border border-[#263d65]">
                       <img src={msg.imageUrl} alt="Print do Gráfico" className="w-full max-h-60 object-cover" />
                     </div>
                   )}
@@ -395,7 +366,7 @@ export function App() {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl rounded-tl-none bg-[#141724] border border-[#23293c] text-xs font-mono text-blue-300 shadow-lg animate-pulse">
+              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl rounded-tl-none bg-[#1b2c48] border border-[#23385c] text-xs font-mono text-blue-300 shadow-lg animate-pulse">
                 <Loader2 className="w-4 h-4 text-amber-400 animate-spin shrink-0" />
                 <span>Strawberry AI analisando mercado e processando resposta...</span>
               </div>
@@ -406,34 +377,34 @@ export function App() {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-[#1f2433] bg-[#10121a]/90 backdrop-blur-md">
+        <div className="p-4 border-t border-[#203455] bg-[#182740]/90 backdrop-blur-md">
           <div className="max-w-4xl mx-auto space-y-2">
             {/* Quick Action Chips */}
             <div className="flex gap-2 overflow-x-auto pb-1 text-xs">
               <button
                 onClick={() => setInputText('Descreva minha carteira na Genial')}
-                className="bg-[#161a26] hover:bg-[#1f2538] text-blue-300 border border-blue-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#1c2d4a] hover:bg-[#213558] text-blue-300 border border-blue-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Wallet className="w-3.5 h-3.5 text-blue-400" /> Ver Custódia Genial
               </button>
 
               <button
                 onClick={() => setInputText('Simular Trava de Baixa com PUT')}
-                className="bg-[#161a26] hover:bg-[#1f2538] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#1c2d4a] hover:bg-[#213558] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Sparkles className="w-3 h-3 text-amber-400" /> Trava com PUT
               </button>
 
               <button
                 onClick={() => setInputText('Comprar Straddle em BOVA11')}
-                className="bg-[#161a26] hover:bg-[#1f2538] text-emerald-300 border border-emerald-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#1c2d4a] hover:bg-[#213558] text-emerald-300 border border-emerald-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Layers className="w-3 h-3 text-emerald-400" /> Straddle Volatilidade
               </button>
 
               <button
                 onClick={() => setInputText('Pausar robôs no Profit Pro')}
-                className="bg-[#161a26] hover:bg-[#1f2538] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
+                className="bg-[#1c2d4a] hover:bg-[#213558] text-amber-300 border border-amber-800/40 px-3 py-1 rounded-full whitespace-nowrap flex items-center gap-1 transition-all"
               >
                 <Sliders className="w-3 h-3 text-amber-400" /> Pausar Robôs
               </button>
@@ -441,7 +412,7 @@ export function App() {
 
             {/* Selected Image Preview */}
             {selectedImage && (
-              <div className="flex items-center gap-2 bg-[#1a1e2b] p-2 rounded-lg border border-[#2b3145] text-xs text-blue-300">
+              <div className="flex items-center gap-2 bg-[#1e304f] p-2 rounded-lg border border-[#263d65] text-xs text-blue-300">
                 <ImageIcon className="w-4 h-4 text-blue-400" />
                 <span>Print anexado para análise visual de IA</span>
                 <button
@@ -462,7 +433,7 @@ export function App() {
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !isGenerating && handleSendMessage()}
                 placeholder={isGenerating ? "Strawberry AI está gerando resposta..." : "Pergunte sobre ações, B3, opções, carteira Genial ou robôs..."}
-                className="w-full bg-[#151824] border border-[#262c3e] focus:border-blue-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner disabled:opacity-60"
+                className="w-full bg-[#1b2c48] border border-[#24395f] focus:border-blue-500 rounded-2xl py-3.5 pl-4 pr-24 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner disabled:opacity-60"
               />
 
               <div className="absolute right-2 flex items-center gap-1">
@@ -470,7 +441,7 @@ export function App() {
                   onClick={handleSimulatePrintUpload}
                   disabled={isGenerating}
                   title="Anexar print do Profit Pro ou TradingView"
-                  className="p-2 text-gray-400 hover:text-blue-400 rounded-xl hover:bg-[#1f2435] transition-all disabled:opacity-40"
+                  className="p-2 text-gray-400 hover:text-blue-400 rounded-xl hover:bg-[#213456] transition-all disabled:opacity-40"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </button>
@@ -486,6 +457,14 @@ export function App() {
             </div>
           </div>
         </div>
+
+        {/* Footer com versão da aplicação */}
+        <footer className="border-t border-[#203455] bg-[#182740]/70 px-4 py-1.5">
+          <div className="max-w-4xl mx-auto flex items-center justify-between text-[10px] font-mono text-gray-500">
+            <span>Strawberry AI — Options & Derivatives</span>
+            <span className="text-gray-400">v{APP_VERSION}</span>
+          </div>
+        </footer>
       </main>
 
       {/* Profit Pro Modal */}

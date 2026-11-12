@@ -21,8 +21,8 @@ export const OrderTicketWidget: React.FC<Props> = ({ data, onConfirm }) => {
   };
 
   return (
-    <div className="bg-[#161a25] border border-blue-900/50 rounded-xl p-4 my-3 text-gray-200 glow-blue">
-      <div className="flex items-center justify-between pb-2 border-b border-[#242b3d]">
+    <div className="bg-[#1c2c49] border border-blue-900/50 rounded-xl p-4 my-3 text-gray-200 glow-blue">
+      <div className="flex items-center justify-between pb-2 border-b border-[#23395d]">
         <div className="flex items-center gap-2">
           {data.optionType === 'ROBOT' ? (
             <Cpu className="w-5 h-5 text-amber-400" />
@@ -53,7 +53,7 @@ export const OrderTicketWidget: React.FC<Props> = ({ data, onConfirm }) => {
           <span className="text-gray-400">Quantidade Lote:</span>
           <span className="text-white">{data.quantity} contratos/opções</span>
         </div>
-        <div className="flex justify-between pt-1 border-t border-[#242b3d]">
+        <div className="flex justify-between pt-1 border-t border-[#23395d]">
           <span className="text-gray-400">Custo Estimado:</span>
           <span className="font-bold text-emerald-400">R$ {data.estimatedCost.toFixed(2)}</span>
         </div>
